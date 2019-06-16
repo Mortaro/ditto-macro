@@ -48,8 +48,7 @@ namespace Ditto.Files
         static string Update(Launcher launcher, string file, string md5)
         {
             string Base = Directory.GetCurrentDirectory();
-            string hash = Hash(Base + file);
-            if (!File.Exists(Base+file) || hash != md5)
+            if (!File.Exists(Base+file) || Hash(Base + file) != md5)
             {
                 launcher.UpdateDescriptionLabel.Text = "Downloading " + file + "...";
                 using (var client = new WebClient())
@@ -58,7 +57,7 @@ namespace Ditto.Files
                     client.DownloadFile(launcher.Domain + file, Base+file);
                 }
             }
-            return file + " " + hash;
+            return file + " " + Hash(Base + file);
         }
 
         static string Hash(string filename)
