@@ -17,40 +17,55 @@ namespace Ditto.Commands
 
         public static void Execute(Macro macro, string[] arguments)
         {
-            System.Diagnostics.Debug.WriteLine("WAITING");
             if (arguments.Length == 2 && macro.Running)
             {
                 Stopwatch timer = new Stopwatch();
                 timer.Start();
                 int miliseconds = GetMiliseconds(arguments[1]);
-                while (timer.Elapsed < TimeSpan.FromMilliseconds((double)miliseconds) && macro.Running)
+                if (macro.Launcher.PerformanceMode.Checked)
                 {
-                    Thread.Sleep(100);
                     macro.BeginInvoke(new MethodInvoker(delegate ()
                     {
-                        int remainder = miliseconds - (int)timer.ElapsedMilliseconds;
-                        if (remainder < 0) remainder = 0;
-                        TimeSpan time = TimeSpan.FromMilliseconds((double)remainder);
-                        string mask;
-                        if (remainder > 60000)
+                        macro.SetStartButtonText("Stop");
+                    }));
+                }
+                while (timer.Elapsed < TimeSpan.FromMilliseconds((double)miliseconds) && macro.Running)
+                {
+                    for(int i = 0; i < 10; i++)
+                    {
+                        if (macro.Running)
                         {
-                            mask = string.Format("{0:D2}m {1:D2}s", time.Minutes, time.Seconds);
-                        }
-                        else if (remainder > 1000)
-                        {
-                            mask = string.Format("{0:D2}s {1:D3}ms", time.Seconds, time.Milliseconds);
+                            Thread.Sleep(10);
                         }
                         else
                         {
-                            mask = string.Format("{0:D3}ms", time.Milliseconds);
+                            break;
                         }
-                        macro.SetStartButtonText(mask.ToString());
-                    }));
+                    }
+                    if (macro.Running && !macro.Launcher.PerformanceMode.Checked)
+                    {
+                        macro.BeginInvoke(new MethodInvoker(delegate ()
+                        {
+                            int remainder = miliseconds - (int)timer.ElapsedMilliseconds;
+                            if (remainder < 0) remainder = 0;
+                            TimeSpan time = TimeSpan.FromMilliseconds((double)remainder);
+                            string mask;
+                            if (remainder > 60000)
+                            {
+                                mask = string.Format("{0:D2}m {1:D2}s", time.Minutes, time.Seconds);
+                            }
+                            else if (remainder > 1000)
+                            {
+                                mask = string.Format("{0:D2}s {1:D3}ms", time.Seconds, time.Milliseconds);
+                            }
+                            else
+                            {
+                                mask = string.Format("{0:D3}ms", time.Milliseconds);
+                            }
+                            macro.SetStartButtonText(mask.ToString());
+                        }));
+                    }
                 }
-                macro.BeginInvoke(new MethodInvoker(delegate ()
-                {
-                    macro.SetStartButtonText("Start");
-                }));
                 timer.Stop();
             }
         }

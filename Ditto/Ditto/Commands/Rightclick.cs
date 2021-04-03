@@ -19,8 +19,11 @@ namespace Ditto.Commands
                 int x = Int32.Parse(arguments[1]);
                 int y = Int32.Parse(arguments[2]);
                 int lParam = x | y << 16;
-                SendMessage(macro.Window, 516, 0, lParam);
-                SendMessage(macro.Window, 517, 0, lParam);
+                foreach (IntPtr window in macro.Windows)
+                {
+                    SendMessage(window, 516, 0, lParam);
+                    SendMessage(window, 517, 0, lParam);
+                }
             }
         }
 

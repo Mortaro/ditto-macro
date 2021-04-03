@@ -29,87 +29,42 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Launcher));
-            this.label1 = new System.Windows.Forms.Label();
-            this.WebsiteLink = new System.Windows.Forms.LinkLabel();
-            this.LaunchClientButton = new System.Windows.Forms.Button();
-            this.UpdateTitleLabel = new System.Windows.Forms.Label();
-            this.UpdateDescriptionLabel = new System.Windows.Forms.Label();
+            this.CreditsLabel = new System.Windows.Forms.Label();
+            this.ConnectionStatusLabel = new System.Windows.Forms.Label();
             this.CloseButton = new System.Windows.Forms.Button();
             this.NewMacroButton = new System.Windows.Forms.Button();
             this.LoadMacroButton = new System.Windows.Forms.Button();
             this.LoadMacroDialog = new System.Windows.Forms.OpenFileDialog();
             this.SaveMacroDialog = new System.Windows.Forms.SaveFileDialog();
-            this.UpdateLinkLabel = new System.Windows.Forms.LinkLabel();
+            this.SaveMacroButton = new System.Windows.Forms.Button();
+            this.HostInput = new System.Windows.Forms.TextBox();
+            this.PasswordInput = new System.Windows.Forms.TextBox();
+            this.PerformanceMode = new System.Windows.Forms.CheckBox();
+            this.NetworkMode = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
-            // label1
+            // CreditsLabel
             // 
-            this.label1.AutoSize = true;
-            this.label1.BackColor = System.Drawing.Color.Black;
-            this.label1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(128)))));
-            this.label1.Location = new System.Drawing.Point(51, 412);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(272, 13);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "Ditto Online is a project from the creator of Ditto Macro";
+            this.CreditsLabel.AutoSize = true;
+            this.CreditsLabel.BackColor = System.Drawing.Color.Black;
+            this.CreditsLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(128)))));
+            this.CreditsLabel.Location = new System.Drawing.Point(50, 208);
+            this.CreditsLabel.Name = "CreditsLabel";
+            this.CreditsLabel.Size = new System.Drawing.Size(259, 13);
+            this.CreditsLabel.TabIndex = 0;
+            this.CreditsLabel.Text = "Ditto Macro is a project created by Christian Mortaro";
+            this.CreditsLabel.Click += new System.EventHandler(this.CreditsLabel_Click);
             // 
-            // WebsiteLink
+            // ConnectionStatusLabel
             // 
-            this.WebsiteLink.ActiveLinkColor = System.Drawing.Color.DarkRed;
-            this.WebsiteLink.AutoSize = true;
-            this.WebsiteLink.BackColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.WebsiteLink.LinkBehavior = System.Windows.Forms.LinkBehavior.AlwaysUnderline;
-            this.WebsiteLink.LinkColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(128)))));
-            this.WebsiteLink.Location = new System.Drawing.Point(77, 397);
-            this.WebsiteLink.Name = "WebsiteLink";
-            this.WebsiteLink.Size = new System.Drawing.Size(216, 13);
-            this.WebsiteLink.TabIndex = 1;
-            this.WebsiteLink.TabStop = true;
-            this.WebsiteLink.Text = "visit www.dittokal.com for more information";
-            this.WebsiteLink.VisitedLinkColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(128)))));
-            this.WebsiteLink.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.WebsiteLink_LinkClicked);
-            // 
-            // LaunchClientButton
-            // 
-            this.LaunchClientButton.BackColor = System.Drawing.Color.Transparent;
-            this.LaunchClientButton.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.LaunchClientButton.Enabled = false;
-            this.LaunchClientButton.FlatAppearance.BorderSize = 0;
-            this.LaunchClientButton.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
-            this.LaunchClientButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
-            this.LaunchClientButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.LaunchClientButton.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.LaunchClientButton.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(128)))));
-            this.LaunchClientButton.Location = new System.Drawing.Point(38, 358);
-            this.LaunchClientButton.Name = "LaunchClientButton";
-            this.LaunchClientButton.Size = new System.Drawing.Size(92, 26);
-            this.LaunchClientButton.TabIndex = 2;
-            this.LaunchClientButton.Text = "Launch Client";
-            this.LaunchClientButton.UseVisualStyleBackColor = false;
-            this.LaunchClientButton.Visible = false;
-            this.LaunchClientButton.Click += new System.EventHandler(this.LaunchClientButton_Click);
-            // 
-            // UpdateTitleLabel
-            // 
-            this.UpdateTitleLabel.BackColor = System.Drawing.Color.Transparent;
-            this.UpdateTitleLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(128)))));
-            this.UpdateTitleLabel.Location = new System.Drawing.Point(30, 270);
-            this.UpdateTitleLabel.Name = "UpdateTitleLabel";
-            this.UpdateTitleLabel.Size = new System.Drawing.Size(300, 13);
-            this.UpdateTitleLabel.TabIndex = 3;
-            this.UpdateTitleLabel.Text = "Kalonline is Updating";
-            this.UpdateTitleLabel.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-            // 
-            // UpdateDescriptionLabel
-            // 
-            this.UpdateDescriptionLabel.BackColor = System.Drawing.Color.Transparent;
-            this.UpdateDescriptionLabel.ForeColor = System.Drawing.SystemColors.Control;
-            this.UpdateDescriptionLabel.Location = new System.Drawing.Point(30, 287);
-            this.UpdateDescriptionLabel.Name = "UpdateDescriptionLabel";
-            this.UpdateDescriptionLabel.Size = new System.Drawing.Size(300, 13);
-            this.UpdateDescriptionLabel.TabIndex = 4;
-            this.UpdateDescriptionLabel.Text = "checking for updates...";
-            this.UpdateDescriptionLabel.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.ConnectionStatusLabel.BackColor = System.Drawing.Color.Transparent;
+            this.ConnectionStatusLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(128)))));
+            this.ConnectionStatusLabel.Location = new System.Drawing.Point(8, 2);
+            this.ConnectionStatusLabel.Name = "ConnectionStatusLabel";
+            this.ConnectionStatusLabel.Size = new System.Drawing.Size(121, 19);
+            this.ConnectionStatusLabel.TabIndex = 3;
+            this.ConnectionStatusLabel.Text = "Ditto Macro Offline";
+            this.ConnectionStatusLabel.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // CloseButton
             // 
@@ -157,7 +112,7 @@
             this.LoadMacroButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.LoadMacroButton.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.LoadMacroButton.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(128)))));
-            this.LoadMacroButton.Location = new System.Drawing.Point(232, 358);
+            this.LoadMacroButton.Location = new System.Drawing.Point(37, 358);
             this.LoadMacroButton.Name = "LoadMacroButton";
             this.LoadMacroButton.Size = new System.Drawing.Size(92, 26);
             this.LoadMacroButton.TabIndex = 8;
@@ -175,37 +130,99 @@
             this.SaveMacroDialog.DefaultExt = "ditto";
             this.SaveMacroDialog.Title = "Save Ditto Macro";
             // 
-            // UpdateLinkLabel
+            // SaveMacroButton
             // 
-            this.UpdateLinkLabel.AutoSize = true;
-            this.UpdateLinkLabel.BackColor = System.Drawing.Color.Transparent;
-            this.UpdateLinkLabel.DisabledLinkColor = System.Drawing.Color.White;
-            this.UpdateLinkLabel.ForeColor = System.Drawing.Color.White;
-            this.UpdateLinkLabel.LinkColor = System.Drawing.Color.White;
-            this.UpdateLinkLabel.Location = new System.Drawing.Point(128, 305);
-            this.UpdateLinkLabel.Name = "UpdateLinkLabel";
-            this.UpdateLinkLabel.Size = new System.Drawing.Size(100, 13);
-            this.UpdateLinkLabel.TabIndex = 9;
-            this.UpdateLinkLabel.TabStop = true;
-            this.UpdateLinkLabel.Text = "view update details";
-            this.UpdateLinkLabel.Visible = false;
-            this.UpdateLinkLabel.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.UpdateLinkLabel_LinkClicked);
+            this.SaveMacroButton.BackColor = System.Drawing.Color.Transparent;
+            this.SaveMacroButton.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.SaveMacroButton.FlatAppearance.BorderSize = 0;
+            this.SaveMacroButton.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.SaveMacroButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.SaveMacroButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.SaveMacroButton.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.SaveMacroButton.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(128)))));
+            this.SaveMacroButton.Location = new System.Drawing.Point(232, 358);
+            this.SaveMacroButton.Name = "SaveMacroButton";
+            this.SaveMacroButton.Size = new System.Drawing.Size(92, 26);
+            this.SaveMacroButton.TabIndex = 9;
+            this.SaveMacroButton.Text = "Save Macro";
+            this.SaveMacroButton.UseVisualStyleBackColor = false;
+            this.SaveMacroButton.Click += new System.EventHandler(this.SaveMacroButton_Click);
+            // 
+            // HostInput
+            // 
+            this.HostInput.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.HostInput.BackColor = System.Drawing.Color.Black;
+            this.HostInput.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.HostInput.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.HostInput.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            this.HostInput.Location = new System.Drawing.Point(27, 266);
+            this.HostInput.Margin = new System.Windows.Forms.Padding(5);
+            this.HostInput.MinimumSize = new System.Drawing.Size(305, 25);
+            this.HostInput.Multiline = true;
+            this.HostInput.Name = "HostInput";
+            this.HostInput.Size = new System.Drawing.Size(305, 25);
+            this.HostInput.TabIndex = 10;
+            this.HostInput.TextChanged += new System.EventHandler(this.HostInput_TextChanged);
+            // 
+            // PasswordInput
+            // 
+            this.PasswordInput.BackColor = System.Drawing.Color.Black;
+            this.PasswordInput.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.PasswordInput.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.PasswordInput.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            this.PasswordInput.Location = new System.Drawing.Point(27, 298);
+            this.PasswordInput.Margin = new System.Windows.Forms.Padding(5);
+            this.PasswordInput.MinimumSize = new System.Drawing.Size(305, 25);
+            this.PasswordInput.Multiline = true;
+            this.PasswordInput.Name = "PasswordInput";
+            this.PasswordInput.Size = new System.Drawing.Size(305, 25);
+            this.PasswordInput.TabIndex = 11;
+            this.PasswordInput.TextChanged += new System.EventHandler(this.PasswordInput_TextChanged);
+            // 
+            // PerformanceMode
+            // 
+            this.PerformanceMode.AutoSize = true;
+            this.PerformanceMode.BackColor = System.Drawing.Color.Transparent;
+            this.PerformanceMode.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.PerformanceMode.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(128)))));
+            this.PerformanceMode.Location = new System.Drawing.Point(80, 401);
+            this.PerformanceMode.Name = "PerformanceMode";
+            this.PerformanceMode.Size = new System.Drawing.Size(113, 17);
+            this.PerformanceMode.TabIndex = 12;
+            this.PerformanceMode.Text = "Performance Mode";
+            this.PerformanceMode.UseVisualStyleBackColor = false;
+            this.PerformanceMode.CheckedChanged += new System.EventHandler(this.PerformanceMode_CheckedChanged);
+            // 
+            // NetworkMode
+            // 
+            this.NetworkMode.AutoSize = true;
+            this.NetworkMode.BackColor = System.Drawing.Color.Transparent;
+            this.NetworkMode.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.NetworkMode.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(128)))));
+            this.NetworkMode.Location = new System.Drawing.Point(194, 401);
+            this.NetworkMode.Name = "NetworkMode";
+            this.NetworkMode.Size = new System.Drawing.Size(92, 17);
+            this.NetworkMode.TabIndex = 13;
+            this.NetworkMode.Text = "Network Mode";
+            this.NetworkMode.UseVisualStyleBackColor = false;
+            this.NetworkMode.CheckedChanged += new System.EventHandler(this.NetworkMode_CheckedChanged);
             // 
             // Launcher
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
-            this.ClientSize = new System.Drawing.Size(362, 447);
-            this.Controls.Add(this.UpdateLinkLabel);
+            this.ClientSize = new System.Drawing.Size(362, 449);
+            this.Controls.Add(this.NetworkMode);
+            this.Controls.Add(this.PerformanceMode);
+            this.Controls.Add(this.PasswordInput);
+            this.Controls.Add(this.HostInput);
+            this.Controls.Add(this.SaveMacroButton);
             this.Controls.Add(this.LoadMacroButton);
             this.Controls.Add(this.NewMacroButton);
             this.Controls.Add(this.CloseButton);
-            this.Controls.Add(this.UpdateDescriptionLabel);
-            this.Controls.Add(this.UpdateTitleLabel);
-            this.Controls.Add(this.LaunchClientButton);
-            this.Controls.Add(this.WebsiteLink);
-            this.Controls.Add(this.label1);
+            this.Controls.Add(this.ConnectionStatusLabel);
+            this.Controls.Add(this.CreditsLabel);
             this.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -221,17 +238,18 @@
 
         #endregion
 
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.LinkLabel WebsiteLink;
+        private System.Windows.Forms.Label CreditsLabel;
         private System.Windows.Forms.Button CloseButton;
         private System.Windows.Forms.Button NewMacroButton;
         private System.Windows.Forms.Button LoadMacroButton;
         private System.Windows.Forms.OpenFileDialog LoadMacroDialog;
         private System.Windows.Forms.SaveFileDialog SaveMacroDialog;
-        public System.Windows.Forms.Label UpdateTitleLabel;
-        public System.Windows.Forms.Label UpdateDescriptionLabel;
-        public System.Windows.Forms.LinkLabel UpdateLinkLabel;
-        public System.Windows.Forms.Button LaunchClientButton;
+        public System.Windows.Forms.Label ConnectionStatusLabel;
+        private System.Windows.Forms.Button SaveMacroButton;
+        private System.Windows.Forms.TextBox HostInput;
+        private System.Windows.Forms.TextBox PasswordInput;
+        public System.Windows.Forms.CheckBox PerformanceMode;
+        public System.Windows.Forms.CheckBox NetworkMode;
     }
 }
 

@@ -1,14 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Diagnostics;
-using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 using System.Windows.Forms;
+using WebSocketSharp;
 
 namespace Ditto
 {
@@ -16,9 +11,9 @@ namespace Ditto
     public partial class Launcher : Form
     {
 
-        public string Domain = "https://dittokal.com";
-
         public List<Macro> Macros = new List<Macro>();
+
+        public WebSocket Socket;
 
         public Launcher()
         {
@@ -27,7 +22,8 @@ namespace Ditto
 
         private void Launcher_Load(object sender, EventArgs e)
         {
-            Files.Updater.Execute(this);
+            HostInput.Text = Properties.Settings.Default.Host;
+            PasswordInput.Text = Properties.Settings.Default.Password;
         }
 
         public string UpdateLink = "";
@@ -54,28 +50,89 @@ namespace Ditto
             System.Windows.Forms.Application.Exit();
         }
 
-        Timer timer = new Timer();
-
-        private void LaunchClientButton_Click(object sender, EventArgs e)
+        private void ConnectSocket()
         {
-            LaunchClientButton.Enabled = false;
-            LaunchClientButton.Text = "...";
-            timer.Interval = 10000;
-            timer.Tick += LaunchClientTick;
-            timer.Start();
-            System.Diagnostics.Process process = new System.Diagnostics.Process();
-            System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
-            startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-            startInfo.FileName = "cmd.exe";
-            startInfo.Arguments = "/C set __COMPAT_LAYER=Win8RTM && cd kalonline && engine.exe";
-            process.StartInfo = startInfo;
-            process.Start();
+            if (this.Socket == null && this.HostInput.Text != "")
+            {
+                BeginInvoke(new MethodInvoker(delegate
+                {
+                    this.Socket = new WebSocket("ws://" + this.HostInput.Text);
+                    Socket.EmitOnPing = true;
+                    Socket.OnOpen += (ss, ee) =>
+                    {
+                        ConnectionStatusLabel.Text = "Ditto Macro Online";
+                    };
+                    Socket.OnMessage += (ss, ee) =>
+                    {
+                        if (!ee.IsPing) ReceiveCommand(ee.Data);
+                    };
+                    Socket.OnClose += (ss, ee) =>
+                    {
+                        if (this.NetworkMode.Checked)
+                        {
+                            BeginInvoke(new MethodInvoker(delegate ()
+                            {
+                                ConnectionStatusLabel.Text = "Reconnecting to the server...";
+                            }));
+                            for (int i = 0; i < 100; i++)
+                            {
+                                Thread.Sleep(100);
+                            }
+                            ConnectSocket();
+                        }
+                        else
+                        {
+                            ConnectionStatusLabel.Text = "Ditto Macro Offline";
+                        }
+                    };
+                    Socket.Connect();
+                }));
+            }
         }
 
-        private void LaunchClientTick(object sender, System.EventArgs e)
+        private void DisconnectSocket()
         {
-            LaunchClientButton.Enabled = true;
-            LaunchClientButton.Text = "Launch Client";
+            this.Socket.Close();
+            this.Socket = null;
+        }
+
+        public string Password()
+        {
+            return this.PasswordInput.Text;
+        }
+
+        private void ReceiveCommand(string command)
+        {
+            BeginInvoke(new MethodInvoker(delegate ()
+            { 
+                string[] arguments = command.Split(' ');
+                if (arguments.Length >= 3 && arguments[0] == Password())
+                {
+                    BeginInvoke(new MethodInvoker(delegate ()
+                    {
+                        foreach(var macro in this.Macros)
+                        {
+                            if (
+                                (arguments.Length == 3 && (macro.Channel == arguments[2] || macro.Character == arguments[2]))
+                                || (arguments.Length == 4 && macro.Channel == arguments[2] && macro.Character == arguments[3])
+                            )
+                            {
+                                if (macro.Visible)
+                                {
+                                    if (arguments[1] == "start")
+                                    {
+                                        macro.Start();
+                                    }
+                                    else if (arguments[1] == "stop")
+                                    {
+                                        macro.Stop();
+                                    }
+                                }
+                            }
+                        }
+                    }));
+                }
+            }));
         }
 
         private void NewMacroButton_Click(object sender, EventArgs e)
@@ -88,14 +145,12 @@ namespace Ditto
             Macro macro = new Macro(Macros.Count, this);
             Macros.Add(macro);
             macro.Show();
-            LoadMacroButton.Text = "Save Macro";
             return macro;
         }
 
         private void LoadMacroButton_Click(object sender, EventArgs e)
         {
-            if (Macros.Count == 0) LoadMacros();
-            else SaveMacros();
+            LoadMacros();
         }
 
         private void LoadMacros()
@@ -116,6 +171,10 @@ namespace Ditto
                 catch (IOException) { }
             }
         }
+        private void SaveMacroButton_Click(object sender, EventArgs e)
+        {
+            SaveMacros();
+        }
 
         private void SaveMacros()
         {
@@ -125,20 +184,50 @@ namespace Ditto
                 string serialization = "";
                 foreach (Macro macro in Macros)
                 {
-                    serialization += macro.GetCommands() + Environment.NewLine + Environment.NewLine;
+                    if (macro.Visible)
+                    {
+                        serialization += macro.GetCommands() + Environment.NewLine + Environment.NewLine;
+                    }
                 }
                 File.WriteAllText(fileName, serialization.TrimEnd(new char[] { '\r', '\n', ' ' }));
             }
         }
 
-        private void UpdateLinkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        private void HostInput_TextChanged(object sender, EventArgs e)
         {
-            System.Diagnostics.Process.Start(Domain + UpdateLink);
+            Properties.Settings.Default.Host = HostInput.Text;
+            Properties.Settings.Default.Save();
         }
 
-        private void WebsiteLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        private void PasswordInput_TextChanged(object sender, EventArgs e)
         {
-            System.Diagnostics.Process.Start(Domain);
+            Properties.Settings.Default.Password = PasswordInput.Text;
+            Properties.Settings.Default.Save();
+        }
+
+        private void NetworkMode_CheckedChanged(object sender, EventArgs e)
+        {
+            if(NetworkMode.Checked)
+            {
+                ConnectSocket();
+            }
+            else
+            {
+                DisconnectSocket();
+            }
+        }
+
+        private void PerformanceMode_CheckedChanged(object sender, EventArgs e)
+        {
+            foreach (var macro in this.Macros)
+            {
+                macro.CommandsDisplay.Clear();
+            }
+        }
+
+        private void CreditsLabel_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start("https://dittokal.com");
         }
     }
 }

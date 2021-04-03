@@ -116,6 +116,7 @@
             this.CommandsInput.Name = "CommandsInput";
             this.CommandsInput.Size = new System.Drawing.Size(230, 195);
             this.CommandsInput.TabIndex = 4;
+            this.CommandsInput.TextChanged += new System.EventHandler(this.CommandsInput_TextChanged);
             // 
             // CommandsDisplay
             // 
@@ -173,7 +174,7 @@
         private System.Windows.Forms.Button CoordinatesButton;
         private System.Windows.Forms.Button CloseButton;
         private System.Windows.Forms.TextBox CommandsInput;
-        private System.Windows.Forms.RichTextBox CommandsDisplay;
+        public System.Windows.Forms.RichTextBox CommandsDisplay;
         private System.Windows.Forms.Label TitleLabel;
     }
 }
