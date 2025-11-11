@@ -37,26 +37,35 @@ namespace Ditto.Commands
             
             foreach (IntPtr window in macro.Windows)
             {
-                Rectangle? box = FindBoxWithColoredText(window, textColors, colorTolerance, minTextPixels);
-                if (box.HasValue)
+                // Keep trying until we find a box or the macro stops
+                while (macro.Running)
                 {
-                    // Click at the center of the found box
-                    int centerX = box.Value.X + box.Value.Width / 2;
-                    int centerY = box.Value.Y + box.Value.Height / 2;
-                    
-                    string[] args = new string[3]
+                    Rectangle? box = FindBoxWithColoredText(macro, window, textColors, colorTolerance, minTextPixels);
+                    if (box.HasValue)
                     {
-                        "leftclick",
-                        centerX.ToString(),
-                        (centerY + 30).ToString(),
-                    };
-                    Leftclick.Execute(macro, args);
-                    System.Windows.Forms.Cursor.Position = new System.Drawing.Point(centerX, centerY);
+                        // Click at the center of the found box
+                        int centerX = box.Value.X + box.Value.Width / 2;
+                        int centerY = box.Value.Y + box.Value.Height / 2;
+                        
+                        string[] args = new string[3]
+                        {
+                            "leftclick",
+                            centerX.ToString(),
+                            (centerY + 30).ToString(),
+                        };
+                        //Leftclick.Execute(macro, args);
+                        System.Windows.Forms.Cursor.Position = new System.Drawing.Point(centerX, centerY + 30);
+                        break; // Exit the retry loop after successful click
+                    }
+                    
+                    // Small delay before retrying to avoid excessive CPU usage
+                    System.Threading.Thread.Sleep(50);
                 }
             }
         }
 
         public static Rectangle? FindBoxWithColoredText(
+            Macro macro,
             IntPtr hwnd,
             List<Color> textColors,
             int colorTolerance,
@@ -83,8 +92,10 @@ namespace Ditto.Commands
                     // Try to find a box with any of the text colors
                     foreach (var textColor in textColors)
                     {
+                        if (!macro.Running) return null; // Check if macro is still running
+                        
                         var pixelHelper = new PixelHelper(buffer, data.Stride, textColor, colorTolerance);
-                        Rectangle? box = SearchForColoredTextBox(w, h, cx, cy, pixelHelper, minTextPixels);
+                        Rectangle? box = SearchForColoredTextBox(macro, w, h, cx, cy, pixelHelper, minTextPixels);
                         if (box.HasValue)
                             return box;
                     }
@@ -99,6 +110,7 @@ namespace Ditto.Commands
         }
 
         private static Rectangle? SearchForColoredTextBox(
+            Macro macro,
             int width,
             int height,
             int centerX,
@@ -118,7 +130,7 @@ namespace Ditto.Commands
             queue.Enqueue((startX, startY));
             scanned[startX, startY] = true;
 
-            while (queue.Count > 0)
+            while (queue.Count > 0 && macro.Running)
             {
                 var (x, y) = queue.Dequeue();
 
