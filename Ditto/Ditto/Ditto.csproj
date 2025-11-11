@@ -82,7 +82,7 @@
     <Compile Include="Commands\Cursor.cs" />
     <Compile Include="Commands\Keypress.cs" />
     <Compile Include="Commands\Leftclick.cs" />
-    <Compile Include="Commands\LeftClickMonster.cs" />
+    <Compile Include="Commands\ClickMonster.cs" />
     <Compile Include="Commands\Pixel.cs" />
     <Compile Include="Commands\Rightclick.cs" />
     <Compile Include="Commands\Start.cs" />

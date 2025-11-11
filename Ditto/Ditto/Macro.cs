@@ -243,9 +243,9 @@ namespace Ditto
                         {
                             Ditto.Commands.Pixel.Execute(this, Arguments);
                         }
-                        else if (Arguments[0] == "leftclickmonster")
+                        else if (Arguments[0] == "clickmonster")
                         {
-                            Ditto.Commands.LeftClickMonster.Execute(this, Arguments);
+                            Ditto.Commands.ClickMonster.Execute(this, Arguments);
                         }
                     }
                     Thread.Sleep(100);
