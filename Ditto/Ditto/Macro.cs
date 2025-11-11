@@ -126,7 +126,8 @@ namespace Ditto
                     GetWindowRect(window, ref windowPosition);
                     int X = Cursor.Position.X - windowPosition.Left;
                     int Y = Cursor.Position.Y - windowPosition.Top - 28;
-                    CommandsInput.Text = CommandsInput.Text.Insert(CommandsInput.SelectionStart, X + " " + Y);
+                    Color pixel = Ditto.Commands.Pixel.GetPixel(window, X, Y);
+                    CommandsInput.Text = CommandsInput.Text.Insert(CommandsInput.SelectionStart, X.ToString() + " " + Y.ToString() + " " + pixel.R.ToString() + "." + pixel.G.ToString() + "." + pixel.B.ToString());
                     UnregisterHotKey(base.Handle, 2);
                     CoordinatesButton.Text = "F7";
                 }
@@ -242,6 +243,10 @@ namespace Ditto
                         {
                             Ditto.Commands.Pixel.Execute(this, Arguments);
                         }
+                        else if (Arguments[0] == "leftclickmonster")
+                        {
+                            Ditto.Commands.LeftClickMonster.Execute(this, Arguments);
+                        }
                     }
                     Thread.Sleep(100);
                 }
@@ -330,7 +335,7 @@ namespace Ditto
             {
                 Titles.Add(this.Channel);
             }
-            Titles.Add("Ditto " + this.Index);
+            Titles.Add("Tool " + this.Index);
             if (this.Windows.Count > 0)
             {
                 Titles.Add("✓");

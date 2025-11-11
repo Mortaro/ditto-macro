@@ -60,7 +60,7 @@ namespace Ditto
                     Socket.EmitOnPing = true;
                     Socket.OnOpen += (ss, ee) =>
                     {
-                        ConnectionStatusLabel.Text = "Ditto Macro Online";
+                        ConnectionStatusLabel.Text = "Mortaro's Tool";
                     };
                     Socket.OnMessage += (ss, ee) =>
                     {
@@ -82,7 +82,7 @@ namespace Ditto
                         }
                         else
                         {
-                            ConnectionStatusLabel.Text = "Ditto Macro Offline";
+                            ConnectionStatusLabel.Text = "Mortaro's Tool";
                         }
                     };
                     Socket.Connect();

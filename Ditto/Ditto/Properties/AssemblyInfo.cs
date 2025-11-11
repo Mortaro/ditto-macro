@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Ditto")]
-[assembly: AssemblyDescription("Ditto Online")]
+[assembly: AssemblyTitle("MortarosTool")]
+[assembly: AssemblyDescription("MortarosTool")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Ditto")]
-[assembly: AssemblyProduct("Ditto")]
+[assembly: AssemblyCompany("MortarosTool")]
+[assembly: AssemblyProduct("MortarosTool")]
 [assembly: AssemblyCopyright("Copyright ©  2019")]
 [assembly: AssemblyTrademark("Mortaro")]
 [assembly: AssemblyCulture("")]

@@ -139,7 +139,7 @@
             this.TitleLabel.Name = "TitleLabel";
             this.TitleLabel.Size = new System.Drawing.Size(35, 13);
             this.TitleLabel.TabIndex = 6;
-            this.TitleLabel.Text = "Ditto";
+            this.TitleLabel.Text = "Mortaro's Tool";
             // 
             // Macro
             // 
@@ -159,7 +159,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Macro";
-            this.Text = "Ditto Macro";
+            this.Text = "Mortaro's Tool";
             this.Load += new System.EventHandler(this.Macro_Load);
             this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Macro_MouseDown);
             this.ResumeLayout(false);

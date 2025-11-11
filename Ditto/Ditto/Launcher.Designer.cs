@@ -52,7 +52,7 @@
             this.CreditsLabel.Name = "CreditsLabel";
             this.CreditsLabel.Size = new System.Drawing.Size(259, 13);
             this.CreditsLabel.TabIndex = 0;
-            this.CreditsLabel.Text = "Ditto Macro is a project created by Christian Mortaro";
+            this.CreditsLabel.Text = "Mortaro's Tool is a project created by Christian Mortaro";
             this.CreditsLabel.Click += new System.EventHandler(this.CreditsLabel_Click);
             // 
             // ConnectionStatusLabel
@@ -63,7 +63,7 @@
             this.ConnectionStatusLabel.Name = "ConnectionStatusLabel";
             this.ConnectionStatusLabel.Size = new System.Drawing.Size(121, 19);
             this.ConnectionStatusLabel.TabIndex = 3;
-            this.ConnectionStatusLabel.Text = "Ditto Macro Offline";
+            this.ConnectionStatusLabel.Text = "Mortaro's Tool Macro Offline";
             this.ConnectionStatusLabel.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // CloseButton
@@ -228,7 +228,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Launcher";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Ditto Online";
+            this.Text = "Mortaro's Tool";
             this.Load += new System.EventHandler(this.Launcher_Load);
             this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Launcher_MouseDown);
             this.ResumeLayout(false);
