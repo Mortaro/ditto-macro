@@ -24,14 +24,20 @@ namespace Ditto.Commands
         {
             if (arguments.Length < 1 || !macro.Running) return;
             
-            // Look for boxes containing purple text #DD55EE (RGB: 221, 85, 238)
-            Color purpleTextColor = Color.FromArgb(221, 85, 238);
-            int purpleTolerance = 15; // Tolerance for purple text detection
-            int minPurplePixels = 5; // Minimum purple pixels to consider it valid text
+            // Monster name boxes can have text in multiple colors
+            var textColors = new List<Color>
+            {
+                Color.FromArgb(221, 85, 238),  // #DD55EE - Purple
+                Color.FromArgb(255, 0, 0),      // #FF0000 - Red
+                Color.FromArgb(238, 238, 0),    // #EEEE00 - Yellow
+                Color.FromArgb(255, 187, 51)    // #FFBB33 - Orange
+            };
+            int colorTolerance = 15; // Tolerance for text color detection
+            int minTextPixels = 5; // Minimum text pixels to consider it valid
             
             foreach (IntPtr window in macro.Windows)
             {
-                Rectangle? box = FindBoxWithPurpleText(window, purpleTextColor, purpleTolerance, minPurplePixels);
+                Rectangle? box = FindBoxWithColoredText(window, textColors, colorTolerance, minTextPixels);
                 if (box.HasValue)
                 {
                     // Click at the center of the found box
@@ -42,7 +48,7 @@ namespace Ditto.Commands
                     {
                         "leftclick",
                         centerX.ToString(),
-                        centerY.ToString(),
+                        (centerY + 30).ToString(),
                     };
                     Leftclick.Execute(macro, args);
                     System.Windows.Forms.Cursor.Position = new System.Drawing.Point(centerX, centerY);
@@ -50,11 +56,11 @@ namespace Ditto.Commands
             }
         }
 
-        public static Rectangle? FindBoxWithPurpleText(
+        public static Rectangle? FindBoxWithColoredText(
             IntPtr hwnd,
-            Color purpleTextColor,
-            int purpleTolerance,
-            int minPurplePixels)
+            List<Color> textColors,
+            int colorTolerance,
+            int minTextPixels)
         {
             Rect rectangle = new Rect();
             GetWindowRect(hwnd, ref rectangle);
@@ -73,9 +79,17 @@ namespace Ditto.Commands
                 try
                 {
                     byte[] buffer = CreatePixelBuffer(data, h);
-                    var pixelHelper = new PixelHelper(buffer, data.Stride, purpleTextColor, purpleTolerance);
                     
-                    return SearchForPurpleTextBox(w, h, cx, cy, pixelHelper, minPurplePixels);
+                    // Try to find a box with any of the text colors
+                    foreach (var textColor in textColors)
+                    {
+                        var pixelHelper = new PixelHelper(buffer, data.Stride, textColor, colorTolerance);
+                        Rectangle? box = SearchForColoredTextBox(w, h, cx, cy, pixelHelper, minTextPixels);
+                        if (box.HasValue)
+                            return box;
+                    }
+                    
+                    return null;
                 }
                 finally
                 {
@@ -84,21 +98,23 @@ namespace Ditto.Commands
             }
         }
 
-        private static Rectangle? SearchForPurpleTextBox(
+        private static Rectangle? SearchForColoredTextBox(
             int width,
             int height,
             int centerX,
             int centerY,
             PixelHelper pixelHelper,
-            int minPurplePixels)
+            int minTextPixels)
         {
+            const int UI_TOP_OFFSET = 60; // Ignore top 60px where UI is located
+            
             var queue = new Queue<(int x, int y)>();
             var scanned = new bool[width, height];
             var componentProcessed = new bool[width, height];
 
-            // Start BFS from center
+            // Start BFS from center, but below UI area
             int startX = Math.Min(Math.Max(0, centerX), width - 1);
-            int startY = Math.Min(Math.Max(0, centerY), height - 1);
+            int startY = Math.Min(Math.Max(UI_TOP_OFFSET, centerY), height - 1);
             queue.Enqueue((startX, startY));
             scanned[startX, startY] = true;
 
@@ -106,10 +122,14 @@ namespace Ditto.Commands
             {
                 var (x, y) = queue.Dequeue();
 
-                // If we find a purple pixel, check if it's part of a valid name box
+                // Skip pixels in the UI area
+                if (y < UI_TOP_OFFSET)
+                    continue;
+
+                // If we find a colored text pixel, check if it's part of a valid name box
                 if (pixelHelper.IsColorMatch(x, y) && !componentProcessed[x, y])
                 {
-                    Rectangle? box = ProcessPurpleTextRegion(x, y, width, height, pixelHelper, componentProcessed, minPurplePixels);
+                    Rectangle? box = ProcessColoredTextRegion(x, y, width, height, pixelHelper, componentProcessed, minTextPixels);
                     if (box.HasValue)
                         return box;
                 }
@@ -120,26 +140,26 @@ namespace Ditto.Commands
             return null;
         }
 
-        private static Rectangle? ProcessPurpleTextRegion(
+        private static Rectangle? ProcessColoredTextRegion(
             int startX,
             int startY,
             int width,
             int height,
             PixelHelper pixelHelper,
             bool[,] componentProcessed,
-            int minPurplePixels)
+            int minTextPixels)
         {
-            // Find all purple pixels in this region
-            var purplePixels = FloodFillPurpleRegion(startX, startY, width, height, pixelHelper, componentProcessed);
+            // Find all colored text pixels in this region
+            var textPixels = FloodFillTextRegion(startX, startY, width, height, pixelHelper, componentProcessed);
             
-            if (purplePixels.Count < minPurplePixels)
+            if (textPixels.Count < minTextPixels)
                 return null;
 
-            // Calculate bounding box of purple text
+            // Calculate bounding box of colored text
             int minX = int.MaxValue, maxX = int.MinValue;
             int minY = int.MaxValue, maxY = int.MinValue;
             
-            foreach (var (x, y) in purplePixels)
+            foreach (var (x, y) in textPixels)
             {
                 if (x < minX) minX = x;
                 if (x > maxX) maxX = x;
@@ -166,7 +186,7 @@ namespace Ditto.Commands
             return null;
         }
 
-        private static List<(int x, int y)> FloodFillPurpleRegion(
+        private static List<(int x, int y)> FloodFillTextRegion(
             int startX,
             int startY,
             int width,
@@ -175,7 +195,7 @@ namespace Ditto.Commands
             bool[,] componentProcessed)
         {
             var stack = new Stack<(int x, int y)>();
-            var purplePixels = new List<(int x, int y)>();
+            var textPixels = new List<(int x, int y)>();
             
             stack.Push((startX, startY));
             componentProcessed[startX, startY] = true;
@@ -183,7 +203,7 @@ namespace Ditto.Commands
             while (stack.Count > 0)
             {
                 var (x, y) = stack.Pop();
-                purplePixels.Add((x, y));
+                textPixels.Add((x, y));
 
                 // Check 8-neighbors for text connectivity
                 var neighbors = new[] { 
@@ -205,7 +225,7 @@ namespace Ditto.Commands
                 }
             }
 
-            return purplePixels;
+            return textPixels;
         }
 
         private static bool IsSurroundingAreaDark(
