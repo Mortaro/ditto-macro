@@ -53,8 +53,8 @@ namespace Ditto.Commands
                             centerX.ToString(),
                             (centerY + 30).ToString(),
                         };
-                        //Leftclick.Execute(macro, args);
-                        System.Windows.Forms.Cursor.Position = new System.Drawing.Point(centerX, centerY + 30);
+                        Leftclick.Execute(macro, args);
+                        //System.Windows.Forms.Cursor.Position = new System.Drawing.Point(centerX, centerY + 30);
                         break; // Exit the retry loop after successful click
                     }
                     
@@ -161,13 +161,13 @@ namespace Ditto.Commands
             bool[,] componentProcessed,
             int minTextPixels)
         {
-            // Find all colored text pixels in this region
+            // Find all colored text pixels in this region (first word)
             var textPixels = FloodFillTextRegion(startX, startY, width, height, pixelHelper, componentProcessed);
             
             if (textPixels.Count < minTextPixels)
                 return null;
 
-            // Calculate bounding box of colored text
+            // Calculate initial bounding box of first word
             int minX = int.MaxValue, maxX = int.MinValue;
             int minY = int.MaxValue, maxY = int.MinValue;
             
@@ -177,6 +177,30 @@ namespace Ditto.Commands
                 if (x > maxX) maxX = x;
                 if (y < minY) minY = y;
                 if (y > maxY) maxY = y;
+            }
+
+            // Look for additional words nearby (within reasonable horizontal distance)
+            // This handles multi-word monster names like "demon vulgar monster"
+            int searchRadius = 100; // pixels to search horizontally for more words
+            int wordGapTolerance = 20; // max vertical difference for words on same line
+            
+            for (int y = Math.Max(0, minY - wordGapTolerance); y <= Math.Min(height - 1, maxY + wordGapTolerance); y++)
+            {
+                for (int x = Math.Max(0, minX - searchRadius); x <= Math.Min(width - 1, maxX + searchRadius); x++)
+                {
+                    if (!componentProcessed[x, y] && pixelHelper.IsColorMatch(x, y))
+                    {
+                        var additionalPixels = FloodFillTextRegion(x, y, width, height, pixelHelper, componentProcessed);
+                        foreach (var (px, py) in additionalPixels)
+                        {
+                            textPixels.Add((px, py));
+                            if (px < minX) minX = px;
+                            if (px > maxX) maxX = px;
+                            if (py < minY) minY = py;
+                            if (py > maxY) maxY = py;
+                        }
+                    }
+                }
             }
 
             // Expand the box to include the surrounding black background
