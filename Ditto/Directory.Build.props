@@ -1,0 +1,5 @@
+<Project>
+  <PropertyGroup Condition="Exists('$(UserProfile)\.netfx-refassemblies\net48\build\.NETFramework\v4.8\mscorlib.dll')">
+    <TargetFrameworkRootPath>$(UserProfile)\.netfx-refassemblies\net48\build</TargetFrameworkRootPath>
+  </PropertyGroup>
+</Project>

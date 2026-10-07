@@ -15,6 +15,31 @@ namespace Ditto.Commands
         [System.Runtime.InteropServices.DllImport("user32.dll", CharSet = System.Runtime.InteropServices.CharSet.Auto)]
         private static extern IntPtr SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
 
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern short GetAsyncKeyState(int vKey);
+
+        private const int VK_CONTROL = 0x11;
+        private const int VK_MENU = 0x12;
+        private const int MODIFIER_POLL_MS = 20;
+        private const int MODIFIER_SETTLE_MS = 40;
+
+        private static void WaitPhysicalModifiersReleased(Macro macro)
+        {
+            bool wasHeld = false;
+            while (macro.Running && (
+                (GetAsyncKeyState(VK_CONTROL) & 0x8000) != 0 ||
+                (GetAsyncKeyState(VK_MENU) & 0x8000) != 0
+            ))
+            {
+                wasHeld = true;
+                System.Threading.Thread.Sleep(MODIFIER_POLL_MS);
+            }
+            if (wasHeld)
+            {
+                System.Threading.Thread.Sleep(MODIFIER_SETTLE_MS);
+            }
+        }
+
         public static void Execute(Macro macro, string[] arguments)
         {
             if (arguments.Length == 2 && macro.Running)
@@ -22,6 +47,7 @@ namespace Ditto.Commands
                 int lParam = 500 | 500 << 16;
                 foreach (IntPtr window in macro.Windows)
                 {
+                    WaitPhysicalModifiersReleased(macro);
                     SendMessage(window, 522, 0, lParam);
                     if (arguments[1] == "1")
                     {
@@ -122,6 +148,14 @@ namespace Ditto.Commands
                     else if (arguments[1] == "numlock")
                     {
                         SendMessage(window, 256, (IntPtr)144, (IntPtr)257);
+                    }
+                    else if (arguments[1] == "esc")
+                    {
+                        SendMessage(window, 256, (IntPtr)27, (IntPtr)257);
+                    }
+                    else if (arguments[1].Length == 1 && Char.IsLetter(arguments[1][0]))
+                    {
+                        SendMessage(window, 256, (IntPtr)Char.ToUpperInvariant(arguments[1][0]), (IntPtr)257);
                     }
                 }
             }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using System.Text;
 using System.Windows.Forms;
 using WebSocketSharp;
 
@@ -12,6 +13,20 @@ namespace Ditto
     {
 
         public List<Macro> Macros = new List<Macro>();
+
+        public Dictionary<string, List<IntPtr>> CapturesByCharacter = new Dictionary<string, List<IntPtr>>();
+
+        public void StoreCapture(string character, IntPtr window)
+        {
+            if (string.IsNullOrEmpty(character)) return;
+            List<IntPtr> captures;
+            if (!CapturesByCharacter.TryGetValue(character, out captures))
+            {
+                captures = new List<IntPtr>();
+                CapturesByCharacter[character] = captures;
+            }
+            if (!captures.Contains(window)) captures.Add(window);
+        }
 
         public WebSocket Socket;
 
@@ -92,6 +107,7 @@ namespace Ditto
 
         private void DisconnectSocket()
         {
+            if (this.Socket == null) return;
             this.Socket.Close();
             this.Socket = null;
         }
@@ -106,7 +122,40 @@ namespace Ditto
             BeginInvoke(new MethodInvoker(delegate ()
             { 
                 string[] arguments = command.Split(' ');
-                if (arguments.Length >= 3 && arguments[0] == Password())
+                if (arguments.Length < 2 || arguments[0] != Password()) return;
+
+                if (arguments[1] == "tool" && arguments.Length >= 4)
+                {
+                    int index;
+                    if (Int32.TryParse(arguments[2], out index)
+                        && index >= 0 && index < this.Macros.Count)
+                    {
+                        try
+                        {
+                            string script = Encoding.UTF8.GetString(Convert.FromBase64String(arguments[3]));
+                            var target = this.Macros[index];
+                            bool wasRunning = target.Running;
+                            if (wasRunning) target.Stop();
+                            target.SetCommands(script);
+                            if (wasRunning) target.Start();
+                            ConnectionStatusLabel.Text = "Tool " + index + " updated";
+                        }
+                        catch (FormatException)
+                        {
+                            ConnectionStatusLabel.Text = "Tool " + index + " not updated: invalid script";
+                        }
+                    }
+                    return;
+                }
+
+                if (arguments[1] == "load" && arguments.Length >= 3)
+                {
+                    string path = string.Join(" ", arguments, 2, arguments.Length - 2);
+                    CarregarArquivo(path);
+                    return;
+                }
+
+                if (arguments.Length >= 3)
                 {
                     BeginInvoke(new MethodInvoker(delegate ()
                     {
@@ -135,9 +184,37 @@ namespace Ditto
             }));
         }
 
+        public void CarregarArquivo(string path)
+        {
+            if (!File.Exists(path)) return;
+            try
+            {
+                foreach (var macro in this.Macros.ToArray())
+                {
+                    macro.Stop();
+                    macro.Close();
+                }
+                this.Macros.Clear();
+                foreach (string instructions in File.ReadAllText(path).Split(new string[]
+                {
+                    Environment.NewLine + Environment.NewLine
+                }, StringSplitOptions.None))
+                {
+                    NewMacro().SetCommands(instructions);
+                }
+                ArrangeMacros();
+                ConnectionStatusLabel.Text = "Macro reloaded";
+            }
+            catch (IOException)
+            {
+                ConnectionStatusLabel.Text = "Could not read the macro file";
+            }
+        }
+
         private void NewMacroButton_Click(object sender, EventArgs e)
         {
             NewMacro();
+            ArrangeMacros();
         }
 
         public Macro NewMacro()
@@ -146,6 +223,57 @@ namespace Ditto
             Macros.Add(macro);
             macro.Show();
             return macro;
+        }
+
+        private const int MACRO_WIDTH = 253;
+        private const int MACRO_HEIGHT = 293;
+
+        private static List<System.Drawing.Rectangle> ScreensLeftToRight()
+        {
+            var areas = new List<System.Drawing.Rectangle>();
+            foreach (Screen screen in Screen.AllScreens) areas.Add(screen.WorkingArea);
+            areas.Sort(delegate (System.Drawing.Rectangle a, System.Drawing.Rectangle b)
+            {
+                return a.X.CompareTo(b.X);
+            });
+            return areas;
+        }
+
+        public void ArrangeMacros()
+        {
+            var areas = ScreensLeftToRight();
+            if (areas.Count == 0 || Macros.Count == 0) return;
+
+            int placed = 0;
+            for (int t = 0; t < areas.Count && placed < Macros.Count; t++)
+            {
+                System.Drawing.Rectangle area = areas[t];
+                int columns = Math.Max(1, area.Width / MACRO_WIDTH);
+                int remainingScreens = areas.Count - t;
+                int howMany = (Macros.Count - placed + remainingScreens - 1) / remainingScreens;
+                int rows = (howMany + columns - 1) / columns;
+
+                int stepY = MACRO_HEIGHT;
+                if (rows > 1)
+                    stepY = Math.Min(MACRO_HEIGHT, (area.Height - MACRO_HEIGHT) / (rows - 1));
+                stepY = Math.Max(24, stepY);
+
+                for (int k = 0; k < howMany && placed < Macros.Count; k++, placed++)
+                {
+                    int x = area.X + (k % columns) * MACRO_WIDTH;
+                    int y = area.Y + (k / columns) * stepY;
+                    if (x + MACRO_WIDTH > area.Right) x = area.Right - MACRO_WIDTH;
+                    if (y + MACRO_HEIGHT > area.Bottom) y = area.Bottom - MACRO_HEIGHT;
+                    Macro macro = Macros[placed];
+                    macro.StartPosition = FormStartPosition.Manual;
+                    macro.Location = new System.Drawing.Point(x, y);
+                }
+            }
+        }
+
+        private void OrganizarButton_Click(object sender, EventArgs e)
+        {
+            ArrangeMacros();
         }
 
         private void LoadMacroButton_Click(object sender, EventArgs e)
@@ -167,8 +295,12 @@ namespace Ditto
                     {
                         NewMacro().SetCommands(instructions);
                     }
+                    ArrangeMacros();
                 }
-                catch (IOException) { }
+                catch (IOException)
+                {
+                    ConnectionStatusLabel.Text = "Could not read the macro file";
+                }
             }
         }
         private void SaveMacroButton_Click(object sender, EventArgs e)

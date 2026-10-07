@@ -83,7 +83,12 @@
     <Compile Include="Commands\Keypress.cs" />
     <Compile Include="Commands\Leftclick.cs" />
     <Compile Include="Commands\ClickMonster.cs" />
+    <Compile Include="Commands\ClickItem.cs" />
     <Compile Include="Commands\Pixel.cs" />
+    <Compile Include="Commands\PixelUntil.cs" />
+    <Compile Include="Commands\KeyUnless.cs" />
+    <Compile Include="Commands\IfPixel.cs" />
+    <Compile Include="Commands\ClosePopup.cs" />
     <Compile Include="Commands\Rightclick.cs" />
     <Compile Include="Commands\Start.cs" />
     <Compile Include="Commands\Stop.cs" />

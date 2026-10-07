@@ -15,6 +15,8 @@ namespace Ditto.Commands
         [System.Runtime.InteropServices.DllImport("user32.dll", CharSet = System.Runtime.InteropServices.CharSet.Auto)]
         private static extern IntPtr SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
 
+        private static int CountdownPending;
+
         public static void Execute(Macro macro, string[] arguments)
         {
             if (arguments.Length == 2 && macro.Running)
@@ -26,6 +28,7 @@ namespace Ditto.Commands
                 {
                     macro.BeginInvoke(new MethodInvoker(delegate ()
                     {
+                        if (!macro.Running) return;
                         macro.SetStartButtonText("Stop");
                     }));
                 }
@@ -42,27 +45,36 @@ namespace Ditto.Commands
                             break;
                         }
                     }
-                    if (macro.Running && !macro.Launcher.PerformanceMode.Checked)
+                    if (macro.Running && !macro.Launcher.PerformanceMode.Checked
+                        && Interlocked.Exchange(ref CountdownPending, 1) == 0)
                     {
                         macro.BeginInvoke(new MethodInvoker(delegate ()
                         {
-                            int remainder = miliseconds - (int)timer.ElapsedMilliseconds;
-                            if (remainder < 0) remainder = 0;
-                            TimeSpan time = TimeSpan.FromMilliseconds((double)remainder);
-                            string mask;
-                            if (remainder > 60000)
+                            try
                             {
-                                mask = string.Format("{0:D2}m {1:D2}s", time.Minutes, time.Seconds);
+                                if (!macro.Running) return;
+                                int remainder = miliseconds - (int)timer.ElapsedMilliseconds;
+                                if (remainder < 0) remainder = 0;
+                                TimeSpan time = TimeSpan.FromMilliseconds((double)remainder);
+                                string mask;
+                                if (remainder > 60000)
+                                {
+                                    mask = string.Format("{0:D2}m {1:D2}s", time.Minutes, time.Seconds);
+                                }
+                                else if (remainder > 1000)
+                                {
+                                    mask = string.Format("{0:D2}s {1:D3}ms", time.Seconds, time.Milliseconds);
+                                }
+                                else
+                                {
+                                    mask = string.Format("{0:D3}ms", time.Milliseconds);
+                                }
+                                macro.SetStartButtonText(mask.ToString());
                             }
-                            else if (remainder > 1000)
+                            finally
                             {
-                                mask = string.Format("{0:D2}s {1:D3}ms", time.Seconds, time.Milliseconds);
+                                Interlocked.Exchange(ref CountdownPending, 0);
                             }
-                            else
-                            {
-                                mask = string.Format("{0:D3}ms", time.Milliseconds);
-                            }
-                            macro.SetStartButtonText(mask.ToString());
                         }));
                     }
                 }

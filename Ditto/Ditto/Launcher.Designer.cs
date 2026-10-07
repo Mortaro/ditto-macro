@@ -37,6 +37,7 @@
             this.LoadMacroDialog = new System.Windows.Forms.OpenFileDialog();
             this.SaveMacroDialog = new System.Windows.Forms.SaveFileDialog();
             this.SaveMacroButton = new System.Windows.Forms.Button();
+            this.OrganizarButton = new System.Windows.Forms.Button();
             this.HostInput = new System.Windows.Forms.TextBox();
             this.PasswordInput = new System.Windows.Forms.TextBox();
             this.PerformanceMode = new System.Windows.Forms.CheckBox();
@@ -147,7 +148,21 @@
             this.SaveMacroButton.Text = "Save Macro";
             this.SaveMacroButton.UseVisualStyleBackColor = false;
             this.SaveMacroButton.Click += new System.EventHandler(this.SaveMacroButton_Click);
-            // 
+            this.OrganizarButton.BackColor = System.Drawing.Color.Transparent;
+            this.OrganizarButton.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.OrganizarButton.FlatAppearance.BorderSize = 0;
+            this.OrganizarButton.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.OrganizarButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.OrganizarButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.OrganizarButton.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.OrganizarButton.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(128)))));
+            this.OrganizarButton.Location = new System.Drawing.Point(135, 389);
+            this.OrganizarButton.Name = "OrganizarButton";
+            this.OrganizarButton.Size = new System.Drawing.Size(92, 26);
+            this.OrganizarButton.TabIndex = 10;
+            this.OrganizarButton.Text = "Organizar";
+            this.OrganizarButton.UseVisualStyleBackColor = false;
+            this.OrganizarButton.Click += new System.EventHandler(this.OrganizarButton_Click);
             // HostInput
             // 
             this.HostInput.Anchor = System.Windows.Forms.AnchorStyles.Left;
@@ -185,7 +200,7 @@
             this.PerformanceMode.BackColor = System.Drawing.Color.Transparent;
             this.PerformanceMode.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.PerformanceMode.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(128)))));
-            this.PerformanceMode.Location = new System.Drawing.Point(80, 401);
+            this.PerformanceMode.Location = new System.Drawing.Point(80, 424);
             this.PerformanceMode.Name = "PerformanceMode";
             this.PerformanceMode.Size = new System.Drawing.Size(113, 17);
             this.PerformanceMode.TabIndex = 12;
@@ -199,7 +214,7 @@
             this.NetworkMode.BackColor = System.Drawing.Color.Transparent;
             this.NetworkMode.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.NetworkMode.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(128)))));
-            this.NetworkMode.Location = new System.Drawing.Point(194, 401);
+            this.NetworkMode.Location = new System.Drawing.Point(194, 424);
             this.NetworkMode.Name = "NetworkMode";
             this.NetworkMode.Size = new System.Drawing.Size(92, 17);
             this.NetworkMode.TabIndex = 13;
@@ -217,6 +232,7 @@
             this.Controls.Add(this.PerformanceMode);
             this.Controls.Add(this.PasswordInput);
             this.Controls.Add(this.HostInput);
+            this.Controls.Add(this.OrganizarButton);
             this.Controls.Add(this.SaveMacroButton);
             this.Controls.Add(this.LoadMacroButton);
             this.Controls.Add(this.NewMacroButton);
@@ -246,6 +262,7 @@
         private System.Windows.Forms.SaveFileDialog SaveMacroDialog;
         public System.Windows.Forms.Label ConnectionStatusLabel;
         private System.Windows.Forms.Button SaveMacroButton;
+        private System.Windows.Forms.Button OrganizarButton;
         private System.Windows.Forms.TextBox HostInput;
         private System.Windows.Forms.TextBox PasswordInput;
         public System.Windows.Forms.CheckBox PerformanceMode;

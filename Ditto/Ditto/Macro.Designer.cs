@@ -114,6 +114,7 @@
             this.CommandsInput.Location = new System.Drawing.Point(12, 31);
             this.CommandsInput.Multiline = true;
             this.CommandsInput.Name = "CommandsInput";
+            this.CommandsInput.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.CommandsInput.Size = new System.Drawing.Size(230, 195);
             this.CommandsInput.TabIndex = 4;
             this.CommandsInput.TextChanged += new System.EventHandler(this.CommandsInput_TextChanged);

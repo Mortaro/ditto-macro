@@ -22,6 +22,7 @@ namespace Ditto
         public string Channel = "";
         public string Character = "";
         public List<string> Commands = new List<string>();
+        private int RenderPending;
 
         public Macro(int Index, Launcher launcher)
         {
@@ -103,6 +104,7 @@ namespace Ditto
                     else if (!this.Windows.Contains(window))
                     {
                         this.Windows.Add(window);
+                        this.Launcher.StoreCapture(this.Character, window);
                         if(this.Character != "")
                         {
                             foreach (var macro in this.Launcher.Macros)
@@ -121,7 +123,7 @@ namespace Ditto
                 }
                 else if (m.WParam.ToInt32() == 2)
                 {
-                    IntPtr window = GetForegroundWindow();
+                    IntPtr window = this.Windows.Count > 0 ? this.Windows[0] : GetForegroundWindow();
                     Rect windowPosition = new Rect();
                     GetWindowRect(window, ref windowPosition);
                     int X = Cursor.Position.X - windowPosition.Left;
@@ -143,6 +145,7 @@ namespace Ditto
 
         public void Start()
         {
+            if (Running) return;
             if (CommandsInput.TextLength > 1)
             {
                 Running = true;
@@ -152,18 +155,22 @@ namespace Ditto
                 this.Worker.Start();
                 CommandsInput.Hide();
                 CommandsDisplay.Show();
+                if (this.Launcher.PerformanceMode.Checked)
+                {
+                    CommandsDisplay.Text = string.Join("\n", Commands.ToArray());
+                }
             }
         }
 
         public void Stop()
         {
             Running = false;
-            SetStartButtonText("Start");
             if (this.Worker != null)
             {
                 this.Worker.Join();
                 this.Worker = null;
             }
+            SetStartButtonText("Start");
             CommandsDisplay.Hide();
             CommandsInput.Show();
         }
@@ -177,41 +184,51 @@ namespace Ditto
         {
             while (Running)
             {
-                int currentline = 0;
-                foreach (string Line in Commands)
+                string[] Lines = Commands.ToArray();
+                for (int index = 0; index < Lines.Length && Running; index++)
                 {
-                    if (!this.Launcher.PerformanceMode.Checked)
+                    string Line = Lines[index];
+                    int currentline = index + 1;
+                    if (!this.Launcher.PerformanceMode.Checked
+                        && Interlocked.Exchange(ref this.RenderPending, 1) == 0)
                     {
+                        string[] script = Lines;
+                        int highlight = currentline;
                         this.BeginInvoke(new MethodInvoker(delegate ()
                         {
-                            CommandsDisplay.Clear();
-                            currentline++;
-                            int currentInstruction = 0;
-                            foreach (string instruction in Commands)
+                            try
                             {
-                                currentInstruction++;
-                                if (currentline == currentInstruction)
+                                this.CommandsDisplay.Text = string.Join("\n", script);
+                                if (highlight >= 1 && highlight <= script.Length)
                                 {
-                                    int from = this.CommandsDisplay.TextLength;
-                                    this.CommandsDisplay.AppendText(instruction);
-                                    int to = this.CommandsDisplay.TextLength;
-                                    this.CommandsDisplay.Select(from, to);
+                                    int offset = 0;
+                                    for (int i = 0; i < highlight - 1; i++) offset += script[i].Length + 1;
+                                    this.CommandsDisplay.Select(offset, script[highlight - 1].Length);
                                     this.CommandsDisplay.SelectionColor = Color.Red;
                                     this.CommandsDisplay.ScrollToCaret();
                                     this.CommandsDisplay.Select(0, 0);
                                 }
-                                else
-                                {
-                                    this.CommandsDisplay.AppendText(instruction);
-                                }
-                                this.CommandsDisplay.AppendText("\n");
+                            }
+                            finally
+                            {
+                                Interlocked.Exchange(ref this.RenderPending, 0);
                             }
                         }));
                     }
                     string[] Arguments = Line.Trim().Split(' ');
                     if (Arguments.Length > 0)
                     {
-                        if (Arguments[0] == "keypress")
+                        if (Arguments[0] == "ifpixel" || Arguments[0] == "ifnotpixel")
+                        {
+                            bool matches;
+                            bool resolved = Ditto.Commands.IfPixel.TryMatches(this, Arguments, out matches);
+                            bool enter = resolved && (Arguments[0] == "ifpixel" ? matches : !matches);
+                            if (!enter)
+                            {
+                                index = Ditto.Commands.IfPixel.IndexOfEndif(Lines, index);
+                            }
+                        }
+                        else if (Arguments[0] == "keypress")
                         {
                             Ditto.Commands.Keypress.Execute(this, Arguments);
                         }
@@ -243,9 +260,25 @@ namespace Ditto
                         {
                             Ditto.Commands.Pixel.Execute(this, Arguments);
                         }
+                        else if (Arguments[0] == "pixeluntil")
+                        {
+                            Ditto.Commands.PixelUntil.Execute(this, Arguments);
+                        }
+                        else if (Arguments[0] == "keyunless")
+                        {
+                            Ditto.Commands.KeyUnless.Execute(this, Arguments);
+                        }
+                        else if (Arguments[0] == "clickitem")
+                        {
+                            Ditto.Commands.ClickItem.Execute(this, Arguments);
+                        }
                         else if (Arguments[0] == "clickmonster")
                         {
                             Ditto.Commands.ClickMonster.Execute(this, Arguments);
+                        }
+                        else if (Arguments[0] == "closepopup")
+                        {
+                            Ditto.Commands.ClosePopup.Execute(this, Arguments);
                         }
                     }
                     Thread.Sleep(100);
@@ -286,6 +319,18 @@ namespace Ditto
                     else if (Line.StartsWith("@"))
                     {
                         this.Character = Line.Trim();
+                        if (this.Windows.Count == 0 && this.Launcher != null)
+                        {
+                            List<IntPtr> captured;
+                            if (this.Launcher.CapturesByCharacter.TryGetValue(this.Character, out captured))
+                            {
+                                foreach (var window in captured)
+                                {
+                                    this.Windows.Add(window);
+                                }
+                                SetWindowTitle();
+                            }
+                        }
                     }
                     else
                     {

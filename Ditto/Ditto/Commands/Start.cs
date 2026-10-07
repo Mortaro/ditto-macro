@@ -20,7 +20,7 @@ namespace Ditto.Commands
                     macro.BeginInvoke(new MethodInvoker(delegate ()
                     {
                         int index = Int32.Parse(arguments[1]);
-                        if (index >= 0 && macro.Launcher.Macros.Count > index)
+                        if (index >= 0 && macro.Launcher.Macros.Count > index && !macro.Launcher.Macros[index].Running)
                         {
                             macro.Launcher.Macros[index].Start();
                         }
