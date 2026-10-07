@@ -1,3 +1,5 @@
 .vs/
 Ditto/bin
 Ditto/obj
+*.bak
+*.bak-*
